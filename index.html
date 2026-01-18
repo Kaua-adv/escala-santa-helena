@@ -54,34 +54,6 @@
       margin-top: 0;
     }
 
-    .topo {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    form {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 15px;
-    }
-
-    input, button {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 15px;
-    }
-
-    button {
-      background: var(--azul-medio);
-      color: white;
-      cursor: pointer;
-      border: none;
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -90,6 +62,7 @@
     th, td {
       padding: 12px;
       border-bottom: 1px solid #ddd;
+      text-align: left;
     }
 
     th {
@@ -97,8 +70,39 @@
       color: var(--azul-escuro);
     }
 
-    #calendar {
-      margin-top: 20px;
+    td.data-link {
+      color: var(--azul-medio);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      color: var(--azul-medio);
+    }
+
+    .close {
+      float: right;
+      cursor: pointer;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -146,6 +150,22 @@
     </table>
   </div>
 
+</main>
+
+<div class="modal" id="modalDetalhes">
+  <div class="modal-content">
+    <span class="close" onclick="fecharModal()">✖</span>
+    <h3>📌 Detalhes da Escala</h3>
+    <p><strong>Data:</strong> <span id="mData"></span></p>
+    <p><strong>Pregador:</strong> <span id="mPregador"></span></p>
+    <p><strong>Cantor:</strong> <span id="mCantor"></span></p>
+    <p><strong>Sonoplasta:</strong> <span id="mSonoplasta"></span></p>
+    <p><strong>WhatsApp:</strong> <span id="mTelefone"></span></p>
+  </div>
+</div>
+    </table>
+  </div>
+
   <div class="card" id="secaoCalendario" style="display:none;">
     <h2>🗓️ Calendário</h2>
     <div id="calendar"></div>
@@ -155,7 +175,7 @@
 
 <script>
   // CONFIG FIREBASE
-const firebaseConfig = {
+  const firebaseConfig = {
     apiKey: "AIzaSyAUQeo8pNtkySgK55Bik59sHwvAaxVsS6w",
     authDomain: "escala-santa-helena.firebaseapp.com",
     projectId: "escala-santa-helena",
@@ -163,6 +183,7 @@ const firebaseConfig = {
     messagingSenderId: "853456405347",
     appId: "1:853456405347:web:9b85caee37bbf5a5c10956"
   };
+
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
@@ -179,10 +200,13 @@ const firebaseConfig = {
 
       lista.innerHTML += `
         <tr>
-          <td>${e.data}</td>
+          <td class="data-link" onclick='abrirModal(${JSON.stringify(e)})'>${e.data}</td>
           <td>${e.pregador}</td>
           <td>${e.cantor || '-'}</td>
           <td>${e.sonoplasta || '-'}</td>
+          <td class="whats">
+            ${linkWhats ? `<a href="${linkWhats}" target="_blank">Enviar WhatsApp</a>` : '—'}
+          </td>
         </tr>
       `;
 
@@ -213,6 +237,19 @@ const firebaseConfig = {
 
     e.target.reset();
     carregarEscalas();
+
+  function abrirModal(e) {
+    document.getElementById('mData').innerText = e.data;
+    document.getElementById('mPregador').innerText = e.pregador;
+    document.getElementById('mCantor').innerText = e.cantor || '-';
+    document.getElementById('mSonoplasta').innerText = e.sonoplasta || '-';
+    document.getElementById('mTelefone').innerText = e.telefone || '-';
+    document.getElementById('modalDetalhes').style.display = 'flex';
+  }
+
+  function fecharModal() {
+    document.getElementById('modalDetalhes').style.display = 'none';
+  }
   });
 
   function mostrarCalendario() {

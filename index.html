@@ -104,6 +104,45 @@
       cursor: pointer;
       font-size: 18px;
     }
+  
+    /* FULLCALENDAR HARMONIZADO */
+    .fc {
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: white;
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .fc-toolbar-title {
+      color: var(--azul-medio);
+      font-weight: 600;
+    }
+
+    .fc-button {
+      background: var(--azul-medio) !important;
+      border: none !important;
+      border-radius: 8px !important;
+      padding: 6px 12px !important;
+    }
+
+    .fc-button:hover {
+      background: #172554 !important;
+    }
+
+    .fc-daygrid-event {
+      background: var(--azul-claro);
+      border: none;
+      color: var(--azul-escuro);
+      padding: 2px 4px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .fc-daygrid-day-number {
+      color: var(--azul-escuro);
+      font-weight: 500;
+    }
+
   </style>
 </head>
 <body>
@@ -175,7 +214,7 @@
 
 <script>
   // CONFIG FIREBASE
- const firebaseConfig = {
+  const firebaseConfig = {
     apiKey: "AIzaSyAUQeo8pNtkySgK55Bik59sHwvAaxVsS6w",
     authDomain: "escala-santa-helena.firebaseapp.com",
     projectId: "escala-santa-helena",
@@ -192,15 +231,31 @@
 
   async function carregarEscalas() {
     lista.innerHTML = '';
-    const eventos = [];
-
     const snap = await db.collection('escalas').orderBy('data').get();
+
+    const escalas = [];
+
     snap.forEach(doc => {
       const e = doc.data();
+      escalas.push(e);
 
-      lista.innerHTML += `
+      const telefoneLimpo = e.telefone ? e.telefone.replace(/[^0-9]/g, '') : '';
+      const linkWhats = telefoneLimpo
+        ? 'https://wa.me/' + telefoneLimpo + '?text=' + encodeURIComponent('Olá! Você está escalado para o dia ' + e.data + '. Não se esqueça 🙏')
+        : '';
+
+      lista.innerHTML += '
         <tr>
-          <td class="data-link" onclick='abrirModal(${JSON.stringify(e)})'>${e.data}</td>
+          <td>' + e.data + '</td>
+          <td>' + e.pregador + '</td>
+          <td>' + (e.cantor || '-') + '</td>
+          <td>' + (e.sonoplasta || '-') + '</td>
+          <td class="whats">' + (linkWhats ? '<a href="' + linkWhats + '" target="_blank">Enviar WhatsApp</a>' : '—') + '</td>
+        </tr>';
+    });
+
+    carregarCalendario(escalas);
+  })'>${e.data}</td>
           <td>${e.pregador}</td>
           <td>${e.cantor || '-'}</td>
           <td>${e.sonoplasta || '-'}</td>

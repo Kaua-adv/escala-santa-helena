@@ -16,19 +16,21 @@
 <style>
 :root{
   --azul:#2563eb;
-  --cinza:#f4f6f8;
+  --azul-suave:#3b82f6;
+  --cinza-bg:#f4f6f8;
+  --cinza-texto:#6b7280;
 }
 
 body{
   margin:0;
   font-family:'Segoe UI',Roboto,sans-serif;
-  background:var(--cinza);
+  background:var(--cinza-bg);
 }
 
 header{
   background:linear-gradient(135deg,#3b82f6,#60a5fa);
   color:#fff;
-  padding:24px;
+  padding:28px;
   text-align:center;
 }
 
@@ -40,45 +42,95 @@ main{
 
 .card{
   background:#fff;
-  border-radius:16px;
+  border-radius:18px;
   padding:30px;
-  box-shadow:0 20px 40px rgba(0,0,0,.08);
+  box-shadow:0 25px 50px rgba(0,0,0,.08);
   margin-bottom:30px;
 }
 
+/* Segmented Control */
 .segmented{
   display:flex;
   justify-content:center;
-  margin-bottom:20px;
+  background:#e5e7eb;
+  border-radius:999px;
+  padding:4px;
+  width:max-content;
+  margin:0 auto;
 }
+
 .segmented button{
   border:none;
-  padding:10px 24px;
-  background:#e5e7eb;
+  padding:10px 28px;
+  border-radius:999px;
+  background:transparent;
   cursor:pointer;
+  font-weight:500;
+  color:#374151;
 }
+
 .segmented button.active{
   background:var(--azul);
   color:#fff;
+  box-shadow:0 6px 14px rgba(37,99,235,.35);
+}
+
+/* Tabela */
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  overflow:hidden;
+  border-radius:14px;
+}
+
+thead th{
+  background:#eef2ff;
+  color:#1e3a8a;
+  padding:14px;
+  text-align:left;
+  font-size:14px;
+}
+
+tbody td{
+  padding:14px;
+  border-bottom:1px solid #e5e7eb;
+}
+
+tbody tr:last-child td{
+  border-bottom:none;
 }
 
 /* Calendário */
 .fc{
   background:#fff;
-  border-radius:16px;
+  border-radius:18px;
   padding:20px;
+}
+
+.fc-col-header-cell-cushion{
+  text-transform:uppercase;
+  color:var(--cinza-texto);
+  font-size:12px;
+  letter-spacing:.04em;
 }
 
 .fc-daygrid-day.fc-day-today .fc-daygrid-day-number{
   background:var(--azul);
   color:#fff;
   border-radius:50%;
-  padding:6px 10px;
+  width:28px;
+  height:28px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 }
 
 .fc-daygrid-event{
-  border-radius:10px;
-  padding:3px 6px;
+  border-radius:12px;
+  padding:4px 8px;
+  font-size:12px;
+  cursor:pointer;
 }
 
 /* Modal */
@@ -94,10 +146,11 @@ main{
 
 .modal-content{
   background:#fff;
-  border-radius:16px;
-  padding:24px 28px 28px;
+  border-radius:20px;
+  padding:28px 30px 30px;
   width:90%;
-  max-width:420px;
+  max-width:440px;
+  box-shadow:0 30px 60px rgba(0,0,0,.25);
   position:relative;
 }
 
@@ -105,47 +158,51 @@ main{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:20px;
+  margin-bottom:22px;
 }
 
 .modal-header h3{
   margin:0;
-  color:#2563eb;
+  color:#1e3a8a;
 }
 
 .edit-btn{
-  background:none;
+  background:#eef2ff;
   border:none;
-  font-size:20px;
+  border-radius:10px;
+  padding:6px 10px;
   cursor:pointer;
+  font-size:16px;
 }
 
 .form-group{
-  margin-bottom:16px;
+  margin-bottom:18px;
 }
 
 .form-group input{
   width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid #d1d5db;
+  font-size:14px;
 }
 
 .modal-actions{
   display:flex;
   justify-content:space-between;
-  margin-top:20px;
+  margin-top:24px;
 }
 
 .modal-actions button{
-  padding:10px 16px;
-  border-radius:10px;
+  padding:10px 18px;
+  border-radius:12px;
   border:none;
   cursor:pointer;
+  font-weight:500;
 }
 
 .btn-danger{
-  background:#b91c1c;
+  background:#dc2626;
   color:#fff;
 }
 </style>
@@ -167,13 +224,13 @@ main{
 </div>
 
 <div class="card" id="secaoTabela">
-  <table width="100%">
+  <table>
     <thead>
       <tr>
-        <th>Data</th>
-        <th>Culto</th>
-        <th>Pregador</th>
-        <th>Cantor</th>
+        <th>DATA</th>
+        <th>CULTO</th>
+        <th>PREGADOR</th>
+        <th>CANTOR</th>
       </tr>
     </thead>
     <tbody id="listaEscalas"></tbody>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Escalas da Igreja</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --azul-escuro: #0a2540;
+      --azul-medio: #1e40af;
+      --azul-claro: #e0ecff;
+      --cinza: #f4f6f8;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: var(--cinza);
+      color: #111;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--azul-escuro), var(--azul-medio));
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      color: var(--azul-medio);
+      margin-top: 0;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+    }
+
+    input, select, button {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    button {
+      background: var(--azul-medio);
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #172554;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: var(--azul-claro);
+      color: var(--azul-escuro);
+    }
+
+    .whats {
+      font-size: 13px;
+      color: var(--azul-medio);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📅 Escalas da Igreja</h1>
+  <p>Organização simples, moderna e eficiente</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <h2>➕ Nova Escala</h2>
+    <form id="formEscala">
+      <input type="date" id="data" required />
+      <input type="text" id="pregador" placeholder="Pregador" required />
+      <input type="text" id="cantor" placeholder="Cantor / Grupo" />
+      <input type="text" id="sonoplasta" placeholder="Sonoplasta" />
+      <input type="text" id="telefone" placeholder="WhatsApp (ex: 559999999999)" />
+      <button type="submit">Salvar Escala</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>📋 Próximas Escalas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Pregador</th>
+          <th>Cantor</th>
+          <th>Sonoplasta</th>
+          <th>Notificação</th>
+        </tr>
+      </thead>
+      <tbody id="listaEscalas"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+  // CONFIG FIREBASE
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_DOMINIO.firebaseapp.com",
+    projectId: "SEU_PROJECT_ID"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const form = document.getElementById('formEscala');
+  const lista = document.getElementById('listaEscalas');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const dados = {
+      data: data.value,
+      pregador: pregador.value,
+      cantor: cantor.value,
+      sonoplasta: sonoplasta.value,
+      telefone: telefone.value,
+      criadoEm: new Date()
+    };
+
+    await db.collection('escalas').add(dados);
+    form.reset();
+    carregarEscalas();
+  });
+
+  async function carregarEscalas() {
+    lista.innerHTML = '';
+    const snap = await db.collection('escalas').orderBy('data').get();
+
+    snap.forEach(doc => {
+      const e = doc.data();
+
+      const linkWhats = e.telefone
+        ? `https://wa.me/${e.telefone}?text=${encodeURIComponent(`Olá! Você está escalado para o dia ${e.data}. Não se esqueça 🙏`)}`
+        : '';
+
+      lista.innerHTML += `
+        <tr>
+          <td>${e.data}</td>
+          <td>${e.pregador}</td>
+          <td>${e.cantor || '-'}</td>
+          <td>${e.sonoplasta || '-'}</td>
+          <td class="whats">
+            ${linkWhats ? `<a href="${linkWhats}" target="_blank">Enviar WhatsApp</a>` : '—'}
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  carregarEscalas();
+</script>
+
+</body>
+</html>

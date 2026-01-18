@@ -16,9 +16,7 @@
 <style>
 :root{
   --azul:#2563eb;
-  --azul-claro:#e0ecff;
   --cinza:#f4f6f8;
-  --cinza-texto:#6b7280;
 }
 
 body{
@@ -48,32 +46,21 @@ main{
   margin-bottom:30px;
 }
 
-h2{color:var(--azul);margin-top:0}
-
-/* Segmented Control */
 .segmented{
   display:flex;
   justify-content:center;
-  margin-bottom:10px;
+  margin-bottom:20px;
 }
 .segmented button{
   border:none;
   padding:10px 24px;
   background:#e5e7eb;
   cursor:pointer;
-  font-weight:500;
 }
-.segmented button:first-child{border-radius:10px 0 0 10px;}
-.segmented button:last-child{border-radius:0 10px 10px 0;}
 .segmented button.active{
   background:var(--azul);
   color:#fff;
 }
-
-/* Tabela */
-table{width:100%;border-collapse:collapse}
-th,td{padding:12px;border-bottom:1px solid #ddd}
-th{background:var(--azul-claro)}
 
 /* Calendário */
 .fc{
@@ -92,21 +79,14 @@ th{background:var(--azul-claro)}
 .fc-daygrid-event{
   border-radius:10px;
   padding:3px 6px;
-  cursor:pointer;
 }
 
-.fc-col-header-cell-cushion{
-  text-transform:uppercase;
-  color:var(--cinza-texto);
-  font-size:12px;
-}
-
-/* ================= MODAL ================= */
+/* Modal */
 .modal{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.55);
+  background:rgba(0,0,0,.5);
   justify-content:center;
   align-items:center;
   z-index:9999;
@@ -114,69 +94,53 @@ th{background:var(--azul-claro)}
 
 .modal-content{
   background:#fff;
-  border-radius:18px;
-  padding:26px 24px 24px;
+  border-radius:16px;
+  padding:24px 28px 28px;
   width:90%;
   max-width:420px;
   position:relative;
 }
 
-.modal-content h3{
-  margin:0 0 18px;
-  text-align:center;
-  color:var(--azul);
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
 }
 
-/* Botão lápis */
+.modal-header h3{
+  margin:0;
+  color:#2563eb;
+}
+
 .edit-btn{
-  position:absolute;
-  top:16px;
-  right:16px;
-  background:#eef2ff;
+  background:none;
   border:none;
-  border-radius:8px;
-  padding:6px 8px;
-  font-size:16px;
+  font-size:20px;
   cursor:pointer;
-  z-index:10;
 }
 
 .form-group{
-  margin-bottom:14px;
-}
-
-.form-group label{
-  font-size:13px;
-  color:var(--cinza-texto);
-  margin-bottom:4px;
-  display:block;
+  margin-bottom:16px;
 }
 
 .form-group input{
   width:100%;
-  padding:11px;
+  padding:12px;
   border-radius:10px;
-  border:1px solid #d1d5db;
-  font-size:14px;
-}
-
-/* Modo leitura */
-.readonly input{
-  background:#f1f5f9;
-  cursor:not-allowed;
+  border:1px solid #ccc;
 }
 
 .modal-actions{
   display:flex;
-  gap:10px;
-  margin-top:18px;
+  justify-content:space-between;
+  margin-top:20px;
 }
 
 .modal-actions button{
-  flex:1;
-  padding:10px;
-  border:none;
+  padding:10px 16px;
   border-radius:10px;
+  border:none;
   cursor:pointer;
 }
 
@@ -203,51 +167,44 @@ th{background:var(--azul-claro)}
 </div>
 
 <div class="card" id="secaoTabela">
-<h2>📋 Próximas Escalas</h2>
-<table>
-<thead>
-<tr>
-<th>Data</th>
-<th>Culto</th>
-<th>Pregador</th>
-<th>Cantor</th>
-</tr>
-</thead>
-<tbody id="listaEscalas"></tbody>
-</table>
+  <table width="100%">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Culto</th>
+        <th>Pregador</th>
+        <th>Cantor</th>
+      </tr>
+    </thead>
+    <tbody id="listaEscalas"></tbody>
+  </table>
 </div>
 
 <div class="card" id="secaoCalendario" style="display:none">
-<h2>🗓️ Calendário</h2>
-<div id="calendar"></div>
+  <div id="calendar"></div>
 </div>
 
 </main>
 
 <!-- MODAL -->
 <div class="modal" id="modal">
-  <div class="modal-content readonly" id="modalContent">
-    <h3 id="modalTitulo">Escala</h3>
-    <button class="edit-btn" id="btnEditar" title="Editar">✏️</button>
-
-    <div class="form-group">
-      <label>Nome do Culto</label>
-      <input type="text" id="mCulto">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Escala</h3>
+      <button class="edit-btn" onclick="habilitarEdicao()">✏️</button>
     </div>
 
     <div class="form-group">
-      <label>Data</label>
-      <input type="date" id="mData">
+      <input type="text" id="mCulto" placeholder="Nome do Culto" disabled>
     </div>
-
     <div class="form-group">
-      <label>Pregador</label>
-      <input type="text" id="mPregador">
+      <input type="date" id="mData" disabled>
     </div>
-
     <div class="form-group">
-      <label>Cantor</label>
-      <input type="text" id="mCantor">
+      <input type="text" id="mPregador" placeholder="Pregador" disabled>
+    </div>
+    <div class="form-group">
+      <input type="text" id="mCantor" placeholder="Cantor" disabled>
     </div>
 
     <div class="modal-actions">
@@ -268,51 +225,114 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* DOM */
 const lista = document.getElementById('listaEscalas');
 const calendarEl = document.getElementById('calendar');
 const modal = document.getElementById('modal');
-const modalContent = document.getElementById('modalContent');
-const btnEditar = document.getElementById('btnEditar');
 
-const mCulto = document.getElementById('mCulto');
-const mData = document.getElementById('mData');
-const mPregador = document.getElementById('mPregador');
-const mCantor = document.getElementById('mCantor');
-
-const btnTabela = document.getElementById('btnTabela');
-const btnCalendario = document.getElementById('btnCalendario');
-const secaoTabela = document.getElementById('secaoTabela');
-const secaoCalendario = document.getElementById('secaoCalendario');
+const campos = ['mCulto','mData','mPregador','mCantor'].map(id=>document.getElementById(id));
 
 let calendar;
-let escalaId = null;
+let escalaId=null;
 
-/* Funções */
-function setReadonly(v){
-  modalContent.classList.toggle('readonly',v);
-  [mCulto,mData,mPregador,mCantor].forEach(i=>i.disabled=v);
+function bloquearCampos(b=true){
+  campos.forEach(c=>c.disabled=b);
 }
 
-btnEditar.onclick = ()=>{
-  setReadonly(false);
+function habilitarEdicao(){
+  bloquearCampos(false);
+}
+
+async function carregar(){
+  lista.innerHTML='';
+  const snap = await db.collection('escalas').orderBy('data').get();
+  const eventos=[];
+
+  snap.forEach(doc=>{
+    const e = doc.data();
+    lista.innerHTML+=`
+      <tr>
+        <td>${e.data}</td>
+        <td>${e.culto}</td>
+        <td>${e.pregador}</td>
+        <td>${e.cantor||'-'}</td>
+      </tr>`;
+    eventos.push({
+      title:e.culto,
+      start:e.data,
+      extendedProps:{...e,id:doc.id}
+    });
+  });
+
+  if(calendar){
+    calendar.removeAllEvents();
+    calendar.addEventSource(eventos);
+  }
+}
+
+btnCalendario.onclick=()=>{
+  secaoTabela.style.display='none';
+  secaoCalendario.style.display='block';
+  btnTabela.classList.remove('active');
+  btnCalendario.classList.add('active');
+
+  if(!calendar){
+    calendar=new FullCalendar.Calendar(calendarEl,{
+      locale:'pt-br',
+      initialView:'dayGridMonth',
+      dateClick:i=>abrirModal({data:i.dateStr}),
+      eventClick:i=>abrirModal(i.event.extendedProps)
+    });
+    calendar.render();
+  }
+  carregar();
+};
+
+btnTabela.onclick=()=>{
+  secaoCalendario.style.display='none';
+  secaoTabela.style.display='block';
+  btnCalendario.classList.remove('active');
+  btnTabela.classList.add('active');
 };
 
 function abrirModal(d={}){
-  escalaId = d.id || null;
-  mCulto.value = d.culto || '';
-  mData.value = d.data || '';
-  mPregador.value = d.pregador || '';
-  mCantor.value = d.cantor || '';
-  setReadonly(!!escalaId);
-  btnEditar.style.display = escalaId ? 'block' : 'none';
+  escalaId=d.id||null;
   modal.style.display='flex';
+  mCulto.value=d.culto||'';
+  mData.value=d.data||'';
+  mPregador.value=d.pregador||'';
+  mCantor.value=d.cantor||'';
+  bloquearCampos(true);
+}
+
+async function salvarEscala(){
+  const dados={
+    culto:mCulto.value,
+    data:mData.value,
+    pregador:mPregador.value,
+    cantor:mCantor.value
+  };
+  escalaId
+    ? await db.collection('escalas').doc(escalaId).update(dados)
+    : await db.collection('escalas').add(dados);
+
+  fecharModal();
+  carregar();
+}
+
+async function excluirEscala(){
+  if(escalaId && confirm('Excluir esta escala?')){
+    await db.collection('escalas').doc(escalaId).delete();
+    fecharModal();
+    carregar();
+  }
 }
 
 function fecharModal(){
   modal.style.display='none';
   escalaId=null;
 }
+
+carregar();
 </script>
 
 </body>

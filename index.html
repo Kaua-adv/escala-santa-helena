@@ -9,6 +9,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
+  <!-- FullCalendar (estilo Google Agenda) -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
   <style>
     :root {
       --azul-escuro: #0a2540;
@@ -50,13 +54,21 @@
       margin-top: 0;
     }
 
+    .topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
     form {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 15px;
     }
 
-    input, select, button {
+    input, button {
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -68,11 +80,6 @@
       color: white;
       cursor: pointer;
       border: none;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      background: #172554;
     }
 
     table {
@@ -83,7 +90,6 @@
     th, td {
       padding: 12px;
       border-bottom: 1px solid #ddd;
-      text-align: left;
     }
 
     th {
@@ -91,9 +97,8 @@
       color: var(--azul-escuro);
     }
 
-    .whats {
-      font-size: 13px;
-      color: var(--azul-medio);
+    #calendar {
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -105,6 +110,14 @@
 </header>
 
 <main>
+
+  <div class="card topo">
+    <h2>Visualização</h2>
+    <div>
+      <button onclick="mostrarTabela()">Tabela</button>
+      <button onclick="mostrarCalendario()">Calendário</button>
+    </div>
+  </div>
 
   <div class="card">
     <h2>➕ Nova Escala</h2>
@@ -118,7 +131,7 @@
     </form>
   </div>
 
-  <div class="card">
+  <div class="card" id="secaoTabela">
     <h2>📋 Próximas Escalas</h2>
     <table>
       <thead>
@@ -127,11 +140,15 @@
           <th>Pregador</th>
           <th>Cantor</th>
           <th>Sonoplasta</th>
-          <th>Notificação</th>
         </tr>
       </thead>
       <tbody id="listaEscalas"></tbody>
     </table>
+  </div>
+
+  <div class="card" id="secaoCalendario" style="display:none;">
+    <h2>🗓️ Calendário</h2>
+    <div id="calendar"></div>
   </div>
 
 </main>
@@ -146,40 +163,19 @@ const firebaseConfig = {
     messagingSenderId: "853456405347",
     appId: "1:853456405347:web:9b85caee37bbf5a5c10956"
   };
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  const form = document.getElementById('formEscala');
   const lista = document.getElementById('listaEscalas');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const dados = {
-      data: data.value,
-      pregador: pregador.value,
-      cantor: cantor.value,
-      sonoplasta: sonoplasta.value,
-      telefone: telefone.value,
-      criadoEm: new Date()
-    };
-
-    await db.collection('escalas').add(dados);
-    form.reset();
-    carregarEscalas();
-  });
+  let calendar;
 
   async function carregarEscalas() {
     lista.innerHTML = '';
-    const snap = await db.collection('escalas').orderBy('data').get();
+    const eventos = [];
 
+    const snap = await db.collection('escalas').orderBy('data').get();
     snap.forEach(doc => {
       const e = doc.data();
-
-      const linkWhats = e.telefone
-        ? `https://wa.me/${e.telefone}?text=${encodeURIComponent(`Olá! Você está escalado para o dia ${e.data}. Não se esqueça 🙏`)}`
-        : '';
 
       lista.innerHTML += `
         <tr>
@@ -187,12 +183,56 @@ const firebaseConfig = {
           <td>${e.pregador}</td>
           <td>${e.cantor || '-'}</td>
           <td>${e.sonoplasta || '-'}</td>
-          <td class="whats">
-            ${linkWhats ? `<a href="${linkWhats}" target="_blank">Enviar WhatsApp</a>` : '—'}
-          </td>
         </tr>
       `;
+
+      eventos.push({
+        title: `🎤 ${e.pregador}`,
+        start: e.data,
+        allDay: true
+      });
     });
+
+    if (calendar) {
+      calendar.removeAllEvents();
+      calendar.addEventSource(eventos);
+    }
+  }
+
+  document.getElementById('formEscala').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    await db.collection('escalas').add({
+      data: data.value,
+      pregador: pregador.value,
+      cantor: cantor.value,
+      sonoplasta: sonoplasta.value,
+      telefone: telefone.value,
+      criadoEm: new Date()
+    });
+
+    e.target.reset();
+    carregarEscalas();
+  });
+
+  function mostrarCalendario() {
+    document.getElementById('secaoTabela').style.display = 'none';
+    document.getElementById('secaoCalendario').style.display = 'block';
+
+    if (!calendar) {
+      calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        height: 'auto'
+      });
+      calendar.render();
+    }
+    carregarEscalas();
+  }
+
+  function mostrarTabela() {
+    document.getElementById('secaoCalendario').style.display = 'none';
+    document.getElementById('secaoTabela').style.display = 'block';
   }
 
   carregarEscalas();

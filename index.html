@@ -34,6 +34,25 @@
 
     .fc { background:#fff; border-radius:12px; padding:10px; }
     .fc-button { background:var(--azul-medio)!important; border:none!important; }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+    }
+    .modal-content h3 { margin-top: 0; color: var(--azul-medio); }
+    .close { float:right; cursor:pointer; font-size:18px; }
   </style>
 </head>
 <body>
@@ -78,6 +97,19 @@
 
 </main>
 
+<!-- MODAL DETALHES -->
+<div class="modal" id="modalDetalhes">
+  <div class="modal-content">
+    <span class="close" onclick="fecharModal()">✖</span>
+    <h3>📌 Detalhes da Escala</h3>
+    <p><strong>Data:</strong> <span id="mData"></span></p>
+    <p><strong>Pregador:</strong> <span id="mPregador"></span></p>
+    <p><strong>Cantor:</strong> <span id="mCantor"></span></p>
+    <p><strong>Sonoplasta:</strong> <span id="mSonoplasta"></span></p>
+    <p><strong>WhatsApp:</strong> <span id="mTelefone"></span></p>
+  </div>
+</div>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyAUQeo8pNtkySgK55Bik59sHwvAaxVsS6w",
@@ -92,6 +124,7 @@
   const db = firebase.firestore();
 
   const lista = document.getElementById('listaEscalas');
+  const calendarEl = document.getElementById('calendar');
   let calendar;
 
   async function carregarEscalas() {
@@ -102,7 +135,12 @@
     snap.forEach(doc => {
       const e = doc.data();
       lista.innerHTML += `<tr><td>${e.data}</td><td>${e.pregador}</td><td>${e.cantor||'-'}</td><td>${e.sonoplasta||'-'}</td></tr>`;
-      eventos.push({ title: '🎤 ' + e.pregador, start: e.data });
+
+      eventos.push({
+        title: '🎤 ' + e.pregador,
+        start: e.data,
+        extendedProps: e
+      });
     });
 
     if (calendar) {
@@ -128,6 +166,7 @@
   function mostrarCalendario() {
     secaoTabela.style.display='none';
     secaoCalendario.style.display='block';
+
     if (!calendar) {
       calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -152,7 +191,10 @@
     secaoTabela.style.display='block';
   }
 
-  const calendarEl = document.getElementById('calendar');
+  function fecharModal() {
+    document.getElementById('modalDetalhes').style.display = 'none';
+  }
+
   carregarEscalas();
 </script>
 

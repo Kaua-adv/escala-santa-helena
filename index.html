@@ -129,7 +129,19 @@
     secaoTabela.style.display='none';
     secaoCalendario.style.display='block';
     if (!calendar) {
-      calendar = new FullCalendar.Calendar(calendarEl, { initialView:'dayGridMonth', locale:'pt-br' });
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        eventClick: function(info) {
+          const e = info.event.extendedProps;
+          document.getElementById('mData').innerText = info.event.startStr;
+          document.getElementById('mPregador').innerText = e.pregador || '-';
+          document.getElementById('mCantor').innerText = e.cantor || '-';
+          document.getElementById('mSonoplasta').innerText = e.sonoplasta || '-';
+          document.getElementById('mTelefone').innerText = e.telefone || '-';
+          document.getElementById('modalDetalhes').style.display = 'flex';
+        }
+      });
       calendar.render();
     }
     carregarEscalas();

@@ -1,334 +1,269 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Escalas da Igreja</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<!-- FullCalendar -->
+<title>Escala - Calendário</title>
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <style>
 :root{
   --azul:#2563eb;
-  --azul-claro:#e0ecff;
-  --cinza:#f4f6f8;
-  --cinza-texto:#6b7280;
+  --azul-suave:#3b82f6;
+  --cinza:#6b7280;
 }
 
 body{
+  font-family:Arial, sans-serif;
+  background:#f1f5f9;
   margin:0;
-  font-family:'Segoe UI',Roboto,sans-serif;
-  background:var(--cinza);
-}
-
-header{
-  background:linear-gradient(135deg,#3b82f6,#60a5fa);
-  color:#fff;
-  padding:24px;
-  text-align:center;
-}
-
-main{
-  max-width:1100px;
-  margin:30px auto;
   padding:20px;
 }
 
 .card{
   background:#fff;
   border-radius:16px;
-  padding:30px;
-  box-shadow:0 20px 40px rgba(0,0,0,.08);
-  margin-bottom:30px;
+  padding:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
 }
 
-h2{color:var(--azul);margin-top:0}
+h2{
+  margin-top:0;
+  background:linear-gradient(90deg,#3b82f6,#60a5fa);
+  -webkit-background-clip:text;
+  color:transparent;
+}
 
-/* Segmented Control */
+/* SEGMENTED CONTROL */
 .segmented{
   display:flex;
   justify-content:center;
-  margin-bottom:10px;
+  margin-bottom:16px;
 }
+
 .segmented button{
-  border:none;
-  padding:10px 24px;
-  background:#e5e7eb;
+  padding:8px 16px;
+  border:1px solid var(--azul);
+  background:#fff;
   cursor:pointer;
-  font-weight:500;
 }
-.segmented button:first-child{border-radius:10px 0 0 10px;}
-.segmented button:last-child{border-radius:0 10px 10px 0;}
+
+.segmented button:first-child{border-radius:8px 0 0 8px;}
+.segmented button:last-child{border-radius:0 8px 8px 0;}
 .segmented button.active{
   background:var(--azul);
   color:#fff;
 }
 
-/* Tabela */
-table{width:100%;border-collapse:collapse}
-th,td{padding:12px;border-bottom:1px solid #ddd}
-th{background:var(--azul-claro)}
-
-/* Calendário */
-.fc{
-  background:#fff;
-  border-radius:16px;
-  padding:20px;
+/* CALENDÁRIO */
+#calendar{
+  margin-top:20px;
 }
 
-.fc-daygrid-day.fc-day-today .fc-daygrid-day-number{
-  background:var(--azul);
-  color:#fff;
-  border-radius:50%;
-  padding:6px 10px;
+.fc .fc-daygrid-day-number{
+  font-weight:bold;
 }
 
-.fc-daygrid-event{
-  border-radius:10px;
-  padding:3px 6px;
-  cursor:pointer;
+.fc-day-today{
+  border:2px solid var(--azul);
 }
 
 .fc-col-header-cell-cushion{
   text-transform:uppercase;
-  color:var(--cinza-texto);
   font-size:12px;
+  color:#9ca3af;
 }
 
-/* Modal */
+.fc-event{
+  border-radius:8px;
+}
+
+/* MODAL */
 .modal{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.5);
+  background:rgba(0,0,0,.4);
   justify-content:center;
   align-items:center;
-  z-index:9999;
+  z-index:999;
 }
 
 .modal-content{
   background:#fff;
+  padding:20px;
+  width:360px;
   border-radius:16px;
-  padding:24px;
-  width:90%;
-  max-width:420px;
+  position:relative;
+}
+
+.modal-content.readonly input{
+  background:#f1f5f9;
+  pointer-events:none;
+}
+
+.edit-btn{
+  position:absolute;
+  top:12px;
+  right:12px;
+  background:none;
+  border:none;
+  font-size:18px;
+  cursor:pointer;
 }
 
 .form-group{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
   margin-bottom:12px;
 }
 
-.form-group input{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
+.form-group label{
+  font-size:13px;
+  color:var(--cinza);
 }
 
 .modal-actions{
   display:flex;
-  justify-content:space-between;
-  margin-top:15px;
+  gap:8px;
+  justify-content:flex-end;
 }
 
-.btn-danger{
-  background:#b91c1c;
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  padding:8px 14px;
+.modal-actions button{
+  padding:8px 12px;
 }
+
+.btn-danger{background:#ef4444;color:#fff;border:none;}
 </style>
 </head>
-
 <body>
 
-<header>
-<h1>📅 Escalas da Igreja</h1>
-</header>
-
-<main>
-
 <div class="card">
+  <h2>Escala</h2>
+
   <div class="segmented">
-    <button id="btnTabela" class="active">Tabela</button>
-    <button id="btnCalendario">Calendário</button>
+    <button class="active">Calendário</button>
+    <button onclick="alert('Em breve')">Lista</button>
   </div>
-</div>
 
-<div class="card" id="secaoTabela">
-<h2>📋 Próximas Escalas</h2>
-<table>
-<thead>
-<tr>
-<th>Data</th>
-<th>Culto</th>
-<th>Pregador</th>
-<th>Cantor</th>
-</tr>
-</thead>
-<tbody id="listaEscalas"></tbody>
-</table>
+  <div id="calendar"></div>
 </div>
-
-<div class="card" id="secaoCalendario" style="display:none">
-<h2>🗓️ Calendário</h2>
-<div id="calendar"></div>
-</div>
-
-</main>
 
 <!-- MODAL -->
 <div class="modal" id="modal">
-<div class="modal-content">
-  <div class="form-group">
-    <input type="text" id="mCulto" placeholder="Nome do Culto">
-  </div>
-  <div class="form-group">
-    <input type="date" id="mData">
-  </div>
-  <div class="form-group">
-    <input type="text" id="mPregador" placeholder="Pregador">
-  </div>
-  <div class="form-group">
-    <input type="text" id="mCantor" placeholder="Cantor">
-  </div>
+  <div class="modal-content readonly" id="modalContent">
+    <h3 id="modalTitulo">Escala</h3>
+    <button class="edit-btn" id="btnEditar">✏️</button>
 
-  <div class="modal-actions">
-    <button onclick="salvarEscala()">Salvar</button>
-    <button class="btn-danger" onclick="excluirEscala()">Excluir</button>
-    <button onclick="fecharModal()">Fechar</button>
+    <div class="form-group">
+      <label>Nome do Culto</label>
+      <input id="mCulto">
+    </div>
+    <div class="form-group">
+      <label>Data</label>
+      <input type="date" id="mData">
+    </div>
+    <div class="form-group">
+      <label>Pregador</label>
+      <input id="mPregador">
+    </div>
+    <div class="form-group">
+      <label>Cantor</label>
+      <input id="mCantor">
+    </div>
+
+    <div class="modal-actions">
+      <button onclick="salvarEscala()">Salvar</button>
+      <button class="btn-danger" onclick="excluirEscala()">Excluir</button>
+      <button onclick="fecharModal()">Fechar</button>
+    </div>
   </div>
-</div>
 </div>
 
 <script>
+// 🔥 Firebase (use o mesmo config do projeto escala-santa-helena)
 const firebaseConfig = {
-  apiKey: "AIzaSyAUQeo8pNtkySgK55Bik59sHwvAaxVsS6w",
-  authDomain: "escala-santa-helena.firebaseapp.com",
-  projectId: "escala-santa-helena"
+  // MANTER O MESMO QUE VOCÊ JÁ USA
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* DOM */
-const lista = document.getElementById('listaEscalas');
-const calendarEl = document.getElementById('calendar');
 const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modalContent');
+const btnEditar = document.getElementById('btnEditar');
+const modalTitulo = document.getElementById('modalTitulo');
 
 const mCulto = document.getElementById('mCulto');
 const mData = document.getElementById('mData');
 const mPregador = document.getElementById('mPregador');
 const mCantor = document.getElementById('mCantor');
 
-const btnTabela = document.getElementById('btnTabela');
-const btnCalendario = document.getElementById('btnCalendario');
-const secaoTabela = document.getElementById('secaoTabela');
-const secaoCalendario = document.getElementById('secaoCalendario');
-
-let calendar;
 let escalaId = null;
 
-/* FUNÇÕES */
-async function carregar(){
-  lista.innerHTML='';
-  const snap = await db.collection('escalas').orderBy('data').get();
-  const eventos=[];
-
-  snap.forEach(doc=>{
-    const e = doc.data();
-    lista.innerHTML += `
-      <tr>
-        <td>${e.data}</td>
-        <td>${e.culto}</td>
-        <td>${e.pregador}</td>
-        <td>${e.cantor || '-'}</td>
-      </tr>`;
-    eventos.push({
-      title: e.culto,
-      start: e.data,
-      extendedProps: { ...e, id: doc.id }
-    });
-  });
-
-  if(calendar){
-    calendar.removeAllEvents();
-    calendar.addEventSource(eventos);
-  }
+function setReadonly(v){
+  modalContent.classList.toggle('readonly', v);
+  [mCulto,mData,mPregador,mCantor].forEach(i=>i.disabled=v);
 }
 
-btnCalendario.onclick = ()=>{
-  btnTabela.classList.remove('active');
-  btnCalendario.classList.add('active');
-  secaoTabela.style.display='none';
-  secaoCalendario.style.display='block';
-
-  if(!calendar){
-    calendar = new FullCalendar.Calendar(calendarEl,{
-      initialView:'dayGridMonth',
-      locale:'pt-br',
-      dateClick:i=>abrirModal({data:i.dateStr}),
-      eventClick:i=>abrirModal(i.event.extendedProps)
-    });
-    calendar.render();
-  }
-  carregar();
-};
-
-btnTabela.onclick = ()=>{
-  btnCalendario.classList.remove('active');
-  btnTabela.classList.add('active');
-  secaoCalendario.style.display='none';
-  secaoTabela.style.display='block';
-};
+btnEditar.onclick = () => setReadonly(false);
 
 function abrirModal(d={}){
   escalaId = d.id || null;
   modal.style.display='flex';
-  mCulto.value = d.culto || '';
-  mData.value = d.data || '';
-  mPregador.value = d.pregador || '';
-  mCantor.value = d.cantor || '';
+
+  mCulto.value=d.culto||'';
+  mData.value=d.data||'';
+  mPregador.value=d.pregador||'';
+  mCantor.value=d.cantor||'';
+
+  if(escalaId){
+    setReadonly(true);
+    btnEditar.style.display='block';
+    modalTitulo.innerText='Detalhes da Escala';
+  }else{
+    setReadonly(false);
+    btnEditar.style.display='none';
+    modalTitulo.innerText='Nova Escala';
+  }
 }
 
-async function salvarEscala(){
-  const dados = {
+function fecharModal(){modal.style.display='none';}
+
+function salvarEscala(){
+  const dados={
     culto:mCulto.value,
     data:mData.value,
     pregador:mPregador.value,
     cantor:mCantor.value
   };
 
-  escalaId
-    ? await db.collection('escalas').doc(escalaId).update(dados)
-    : await db.collection('escalas').add(dados);
-
-  fecharModal();
-  carregar();
-}
-
-async function excluirEscala(){
-  if(escalaId && confirm('Excluir esta escala?')){
-    await db.collection('escalas').doc(escalaId).delete();
-    fecharModal();
-    carregar();
+  if(escalaId){
+    db.collection('escalas').doc(escalaId).update(dados);
+  }else{
+    db.collection('escalas').add(dados);
   }
+  fecharModal();
 }
 
-function fecharModal(){
-  modal.style.display='none';
-  escalaId=null;
+function excluirEscala(){
+  if(escalaId){db.collection('escalas').doc(escalaId).delete();}
+  fecharModal();
 }
 
-carregar();
+// CALENDÁRIO
+const calendar = new FullCalendar.Calendar(document.getElementById('calendar'),{
+  initialView:'dayGridMonth',
+  locale:'pt-br',
+  dateClick:(info)=>abrirModal({data:info.dateStr}),
+  events:[]
+});
+calendar.render();
 </script>
-
 </body>
 </html>
+```

@@ -42,7 +42,7 @@ main{
 
 .card{
   background:#fff;
-  border-radius:16px;
+  border-radius:18px;
   padding:30px;
   box-shadow:0 20px 40px rgba(0,0,0,.08);
   margin-bottom:30px;
@@ -58,13 +58,13 @@ h2{color:var(--azul);margin-top:0}
 }
 .segmented button{
   border:none;
-  padding:10px 24px;
+  padding:10px 26px;
   background:#e5e7eb;
   cursor:pointer;
   font-weight:500;
 }
-.segmented button:first-child{border-radius:12px 0 0 12px;}
-.segmented button:last-child{border-radius:0 12px 12px 0;}
+.segmented button:first-child{border-radius:999px 0 0 999px;}
+.segmented button:last-child{border-radius:0 999px 999px 0;}
 .segmented button.active{
   background:var(--azul);
   color:#fff;
@@ -78,7 +78,7 @@ th{background:var(--azul-claro)}
 /* Calendário */
 .fc{
   background:#fff;
-  border-radius:16px;
+  border-radius:18px;
   padding:20px;
 }
 
@@ -90,8 +90,8 @@ th{background:var(--azul-claro)}
 }
 
 .fc-daygrid-event{
-  border-radius:10px;
-  padding:3px 6px;
+  border-radius:12px;
+  padding:4px 6px;
   cursor:pointer;
 }
 
@@ -106,7 +106,7 @@ th{background:var(--azul-claro)}
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.5);
+  background:rgba(0,0,0,.55);
   justify-content:center;
   align-items:center;
   z-index:9999;
@@ -115,54 +115,76 @@ th{background:var(--azul-claro)}
 .modal-content{
   background:#fff;
   border-radius:20px;
+  padding:28px 32px 30px;
   width:90%;
   max-width:440px;
+  box-shadow:0 30px 60px rgba(0,0,0,.25);
   position:relative;
-  box-shadow:0 25px 60px rgba(0,0,0,.25);
 }
 
-/* CONTAINER INTERNO (CORREÇÃO PRINCIPAL) */
-.modal-body{
-  padding:32px;
-  box-sizing:border-box;
+/* HEADER MODAL */
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
 }
 
-.edit-btn{
-  position:absolute;
-  top:18px;
-  right:18px;
-  background:none;
-  border:none;
-  font-size:18px;
-  cursor:pointer;
+.modal-header h3{
+  margin:0;
   color:var(--azul);
 }
 
+.modal-edit{
+  cursor:pointer;
+  font-size:18px;
+  padding:8px;
+  border-radius:50%;
+}
+.modal-edit:hover{
+  background:#e0ecff;
+}
+
+/* FORM */
 .form-group{
-  margin-bottom:18px;
+  margin-bottom:14px;
 }
 
 .form-group input{
   width:100%;
-  padding:12px 14px;
+  padding:10px 12px;
   border-radius:10px;
   border:1px solid #ccc;
-  box-sizing:border-box;
 }
 
+/* ACTIONS */
 .modal-actions{
   display:flex;
-  justify-content:space-between;
-  gap:10px;
+  gap:12px;
   margin-top:20px;
+}
+
+.modal-actions button{
+  flex:1;
+  border:none;
+  border-radius:999px;
+  padding:12px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.btn-save{
+  background:var(--azul);
+  color:#fff;
 }
 
 .btn-danger{
   background:#b91c1c;
   color:#fff;
-  border:none;
-  border-radius:8px;
-  padding:8px 14px;
+}
+
+.btn-close{
+  background:#e5e7eb;
 }
 </style>
 </head>
@@ -207,31 +229,31 @@ th{background:var(--azul-claro)}
 <!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-content">
-    <button class="edit-btn" id="btnEditar" title="Editar">✏️</button>
 
-    <div class="modal-body">
-      <div class="form-group">
-        <input type="text" id="mCulto" placeholder="Nome do Culto">
-      </div>
-
-      <div class="form-group">
-        <input type="date" id="mData">
-      </div>
-
-      <div class="form-group">
-        <input type="text" id="mPregador" placeholder="Pregador">
-      </div>
-
-      <div class="form-group">
-        <input type="text" id="mCantor" placeholder="Cantor">
-      </div>
-
-      <div class="modal-actions">
-        <button onclick="salvarEscala()">Salvar</button>
-        <button class="btn-danger" onclick="excluirEscala()">Excluir</button>
-        <button onclick="fecharModal()">Fechar</button>
-      </div>
+    <div class="modal-header">
+      <h3>Escala</h3>
+      <span class="modal-edit">✏️</span>
     </div>
+
+    <div class="form-group">
+      <input type="text" id="mCulto" placeholder="Nome do Culto">
+    </div>
+    <div class="form-group">
+      <input type="date" id="mData">
+    </div>
+    <div class="form-group">
+      <input type="text" id="mPregador" placeholder="Pregador">
+    </div>
+    <div class="form-group">
+      <input type="text" id="mCantor" placeholder="Cantor">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-save" onclick="salvarEscala()">Salvar</button>
+      <button class="btn-danger" onclick="excluirEscala()">Excluir</button>
+      <button class="btn-close" onclick="fecharModal()">Fechar</button>
+    </div>
+
   </div>
 </div>
 
@@ -245,7 +267,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* DOM */
 const lista = document.getElementById('listaEscalas');
 const calendarEl = document.getElementById('calendar');
 const modal = document.getElementById('modal');
@@ -263,7 +284,6 @@ const secaoCalendario = document.getElementById('secaoCalendario');
 let calendar;
 let escalaId = null;
 
-/* FUNÇÕES */
 async function carregar(){
   lista.innerHTML='';
   const snap = await db.collection('escalas').orderBy('data').get();
